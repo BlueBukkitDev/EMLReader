@@ -5,6 +5,6 @@ package dev.blue.eml;
  **/
 public class Main {
 	public static void main(String[] args) {
-		new App();
+		new App().start();
 	}
 }
