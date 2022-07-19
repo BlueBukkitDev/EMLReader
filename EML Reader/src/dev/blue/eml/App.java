@@ -22,7 +22,7 @@ public class App implements Runnable {
 	public synchronized void start() {
 		thread.start();
 		running = true;
-		window = new Window();
+		window = new Window(this);
 		keyManager = new KeyManager();
 		mouseManager = new MouseManager();
 	}

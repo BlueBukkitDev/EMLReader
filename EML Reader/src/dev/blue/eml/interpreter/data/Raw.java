@@ -1,18 +1,19 @@
 package dev.blue.eml.interpreter.data;
 
-public class Raw extends Value {
-	Double quantity;
-	String contents;
+public abstract class Raw extends Value {
+	protected Double quantity;
+	protected String contents;
 	
-	public Raw(double d) {
-		quantity = d;
+	public static Raw newRaw(String s) {
+		try {
+			double value = Double.parseDouble(s);
+			return new Number(value);
+		} catch(NumberFormatException e) {
+			return new Text(s);
+		}
 	}
-	
-	public Raw(String s) {
-		contents = s;
-	}
-	
+
 	public Object get() {
-		return (contents == null) ? quantity : contents ;
+		return (contents == null) ? quantity : contents;
 	}
 }
