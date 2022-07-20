@@ -35,7 +35,7 @@ public class Window extends JFrame {
 		this.pack();
 		this.setExtendedState(Frame.MAXIMIZED_BOTH);
 		this.setResizable(true);
-		this.setVisible(true);
+		//this.setVisible(true);
 		try {
 			new ViewLoader(new File("C:\\Users\\be\\Desktop\\test.eml")).loadView();
 		} catch (IOException e) {

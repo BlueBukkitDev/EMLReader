@@ -57,7 +57,9 @@ public class ViewLoader {
 			return;
 		}
 	}
-	
+	/**
+	 *An exhaustive method which takes a given file and returns a {@code List<String>}, some of the contents of which may span multiple lines. Some characters and lines within the file will be omitted during this extraction. 
+	 **/
 	private List<String> readLines() {
 
 		byte[] fileBytes;
@@ -67,12 +69,63 @@ public class ViewLoader {
 			e.printStackTrace();
 			return null;
 		}
+		boolean building = false;
 		String indexLine = "";
+		String textChunk = "";
+		boolean escapeNext = false;
 		List<String> lines = new ArrayList<String>();
 		for(byte b : fileBytes) {
-			if (System.lineSeparator().contains(""+(char)b)) {
-				if(indexLine.length() > 0) {
-					if(indexLine.startsWith("|")) {
+			///////////////////////////////////////////////////////////////BUILDING
+			if(building) {
+				if(escapeNext) {//If we are escaping
+					if(!(""+(char)b).equalsIgnoreCase("\"")) {
+						//this should be when we have an escape without the "
+						if(System.lineSeparator().contains(""+(char)b)) {//If you escaped and then created a new line
+							indexLine += "\\";
+							lines.add(indexLine);
+							indexLine = "";
+							escapeNext = false;
+							continue;
+						}
+						//If you escaped but just did not create a new line and did not follow it with a "
+						indexLine += "\\"+(char)b;
+						//System.out.println("Idk why we did this");
+						escapeNext = false;
+						continue;
+					}
+					//This is when we encounter an escaped "
+					textChunk += (char)b;
+					escapeNext = false;
+					continue;
+				}
+				//If we are not escaping
+				if((""+(char)b).equalsIgnoreCase("\\")){
+					escapeNext = true;
+					continue;
+				}
+
+				//If we are building a chunk and are not escaping
+				if((""+(char)b).equalsIgnoreCase("\"")) {//if we encounter an unescaped "
+					//We need to end the chunk building
+					indexLine += textChunk;
+					textChunk = "";
+					building = false;
+					continue;
+				}
+				
+				textChunk += (char)b;
+				continue;
+			}
+			/////////////////////////////////////////////////////////////NOT BUILDING
+			if((""+(char)b).equalsIgnoreCase("\"")) {//if we have encountered an unescaped "
+				//this should begin a chunk of text as an object
+				building = true;
+				continue;
+			}
+			
+			if (System.lineSeparator().contains(""+(char)b)) {//if the current char is a new line
+				if(indexLine.length() > 0) {//if we're starting a new line
+					if(indexLine.startsWith("|")) {//if it starts with a pipe
 						indexLine = "";
 						continue;
 					}
@@ -80,7 +133,7 @@ public class ViewLoader {
 					indexLine = "";
 				}
 				continue;
-			} else {
+			} else {//if it's not a new line
 				indexLine += (char)b;
 			}
 		}
